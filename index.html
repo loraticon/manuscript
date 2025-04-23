@@ -11,12 +11,18 @@
       background: #fff;
       text-align: center;
     }
+    #wrapper {
+      display: inline-block;
+      border: 2px solid red;
+      padding: 10px;
+      margin-top: 20px;
+    }
     #grid {
       display: grid;
       grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(10, 1fr);
       gap: 2px;
       width: 800px;
-      margin: 0 auto;
     }
     .cell {
       width: 100%;
@@ -25,16 +31,14 @@
       text-align: center;
       font-size: 18px;
       font-weight: bold;
+      line-height: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .cell:focus {
       outline: none;
       background: #fff0f0;
-    }
-    #wrapper {
-      border: 2px solid red;
-      padding: 10px;
-      display: inline-block;
-      margin-top: 20px;
     }
     button {
       margin-top: 20px;
@@ -56,12 +60,14 @@
   <div id="wrapper">
     <div id="grid"></div>
   </div>
-  <button onclick="downloadImage()">이미지로 저장하기</button>
+  <div>
+    <button onclick="downloadImage()">이미지로 저장하기</button>
+  </div>
 
   <script>
     const grid = document.getElementById('grid');
 
-    for (let i = 0; i < 400; i++) {
+    for (let i = 0; i < 200; i++) { // 20 x 10 = 200칸
       const input = document.createElement('input');
       input.setAttribute('maxlength', '1');
       input.className = 'cell';
