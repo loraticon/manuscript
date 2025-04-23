@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>원고지 입력 위젯</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       font-family: 'Noto Sans KR', sans-serif;
       background: #f7f7f7;
@@ -16,11 +13,7 @@
       padding: 20px;
       text-align: center;
     }
-
-    h2 {
-      margin-bottom: 20px;
-    }
-
+    h2 { margin-bottom: 20px; }
     #wrapper {
       border: 2px solid red;
       padding: 20px;
@@ -28,14 +21,12 @@
       margin: 0 auto;
       background: white;
     }
-
     #grid {
       display: grid;
       grid-template-columns: repeat(20, 1fr);
       gap: 2px;
       margin-bottom: 20px;
     }
-
     .cell {
       border: 1px solid red;
       aspect-ratio: 1 / 1;
@@ -47,11 +38,9 @@
       justify-content: center;
       cursor: pointer;
     }
-
     .cell[contenteditable="true"]:focus {
       outline: 2px solid black;
     }
-
     button {
       background: red;
       color: white;
@@ -61,18 +50,15 @@
       border-radius: 6px;
       cursor: pointer;
     }
-
     #counter {
       margin-top: 10px;
       font-size: 16px;
       color: #555;
     }
-
     @media (max-width: 768px) {
       #grid {
         grid-template-columns: repeat(10, 1fr);
       }
-
       .cell {
         font-size: 16px;
       }
@@ -87,10 +73,13 @@
     <button onclick="saveAsImage()">이미지로 저장하기</button>
   </div>
 
+  <!-- html2canvas 라이브러리 추가 -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <script>
     const grid = document.getElementById('grid');
     const counter = document.getElementById('counter');
-    const TOTAL_CELLS = 200; // 10줄 x 20칸 (반응형에서는 자동 맞춤)
+    const TOTAL_CELLS = 200;
 
     for (let i = 0; i < TOTAL_CELLS; i++) {
       const cell = document.createElement('div');
@@ -108,7 +97,16 @@
     }
 
     function saveAsImage() {
-      alert('이미지 저장 기능은 캔버스 또는 html2canvas.js 사용이 필요합니다.');
+      const wrapper = document.getElementById('wrapper');
+
+      html2canvas(wrapper, {
+        backgroundColor: "#ffffff",
+        scale: 2
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const imageWindow = window.open('');
+        imageWindow.document.write(`<img src="${imgData}" style="width:100%"/>`);
+      });
     }
   </script>
 </body>
