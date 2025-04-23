@@ -11,77 +11,21 @@
       background: #fff;
       text-align: center;
     }
+
     #wrapper {
       display: inline-block;
       border: 2px solid red;
       padding: 10px;
-      margin-top: 20px;
     }
+
     #grid {
       display: grid;
-      grid-template-columns: repeat(20, 1fr);
-      grid-template-rows: repeat(10, 1fr);
+      grid-template-columns: repeat(20, 40px);
+      grid-template-rows: repeat(10, 40px);
       gap: 2px;
-      width: 800px;
     }
+
     .cell {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border: 1px solid red;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      line-height: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .cell:focus {
-      outline: none;
-      background: #fff0f0;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: red;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: darkred;
-    }
-  </style>
-</head>
-<body>
-  <h2>원고지 입력 위젯</h2>
-  <div id="wrapper">
-    <div id="grid"></div>
-  </div>
-  <div>
-    <button onclick="downloadImage()">이미지로 저장하기</button>
-  </div>
-
-  <script>
-    const grid = document.getElementById('grid');
-
-    for (let i = 0; i < 200; i++) { // 20 x 10 = 200칸
-      const input = document.createElement('input');
-      input.setAttribute('maxlength', '1');
-      input.className = 'cell';
-      grid.appendChild(input);
-    }
-
-    function downloadImage() {
-      html2canvas(document.querySelector("#wrapper")).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'manuscript.png';
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-    }
-  </script>
-</body>
-</html>
+      width: 40px;
+      height: 40px;
+      border:
