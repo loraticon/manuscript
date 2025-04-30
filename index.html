@@ -1,113 +1,190 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>원고지 입력 위젯</title>
   <style>
-    * { box-sizing: border-box; }
     body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: #f7f7f7;
+      font-family: sans-serif;
+      background-color: #f9f9f9;
       margin: 0;
-      padding: 20px;
-      text-align: center;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
     }
-    h2 { margin-bottom: 20px; }
-    #wrapper {
+    .container {
       border: 2px solid red;
-      padding: 20px;
-      max-width: 1000px;
-      margin: 0 auto;
+      padding: 10px;
       background: white;
+      max-width: 95vw;
+      overflow-x: auto;
     }
-    #grid {
-      display: grid;
-      grid-template-columns: repeat(20, 1fr);
-      gap: 2px;
-      margin-bottom: 20px;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
     }
-    .cell {
-      border: 1px solid red;
-      aspect-ratio: 1 / 1;
+    .header-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .header-buttons button {
+      background: none;
+      border: none;
       font-size: 18px;
-      text-align: center;
-      line-height: 1;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    .options {
       display: flex;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      margin-bottom: 10px;
     }
-    .cell[contenteditable="true"]:focus {
-      outline: 2px solid black;
+    .options label {
+      margin-right: 20px;
     }
-    button {
+    table {
+      border-collapse: collapse;
+    }
+    td, th {
+      border: 1px solid red;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 100%;
+      height: 100%;
+      border: none;
+      text-align: center;
+      font-size: 16px;
+    }
+    .btn-save {
       background: red;
       color: white;
+      padding: 10px 15px;
       border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
       cursor: pointer;
+      font-weight: bold;
+      border-radius: 5px;
     }
-    #counter {
-      margin-top: 10px;
-      font-size: 16px;
-      color: #555;
-    }
-    @media (max-width: 768px) {
-      #grid {
-        grid-template-columns: repeat(10, 1fr);
-      }
-      .cell {
-        font-size: 16px;
+    @media (max-width: 600px) {
+      td, th {
+        width: 25px;
+        height: 25px;
       }
     }
   </style>
 </head>
 <body>
-  <h2>원고지 입력 위젯</h2>
-  <div id="wrapper">
+  <div class="container">
+    <div class="header">
+      <div class="header-title" id="title">원고지 입력 위젯</div>
+      <div class="header-buttons">
+        <button onclick="clearGrid()">🔄</button>
+        <button onclick="toggleTitle()">👁️</button>
+      </div>
+    </div>
+    <div class="options">
+      <label><input type="checkbox" id="showCount"> 글자 수 표시</label>
+      <button class="btn-save" onclick="saveImage()">이미지로 저장하기</button>
+    </div>
     <div id="grid"></div>
-    <div id="counter">입력한 글자 수: 0</div>
-    <button onclick="saveAsImage()">이미지로 저장하기</button>
   </div>
 
-  <!-- html2canvas 라이브러리 추가 -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
   <script>
+    const rows = 10;
+    const cols = 20;
+    const headers = ['가', '나', '다', '라', '마', '바', '사'];
+
     const grid = document.getElementById('grid');
-    const counter = document.getElementById('counter');
-    const TOTAL_CELLS = 200;
 
-    for (let i = 0; i < TOTAL_CELLS; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.contentEditable = true;
-      cell.addEventListener('input', updateCounter);
-      grid.appendChild(cell);
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      headerRow.appendChild(th);
+    });
+    for (let i = headers.length; i < cols; i++) {
+      headerRow.appendChild(document.createElement('th'));
+    }
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+
+    for (let i = 0; i < rows; i++) {
+      const tr = document.createElement('tr');
+      for (let j = 0; j < cols; j++) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.maxLength = 1;
+        input.addEventListener('input', e => {
+          if (input.value.length === 1) {
+            const next = input.parentElement.nextElementSibling?.querySelector('input');
+            if (next) next.focus();
+          }
+        });
+        td.appendChild(input);
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
     }
 
-    function updateCounter() {
-      const allCells = document.querySelectorAll('.cell');
-      let totalText = '';
-      allCells.forEach(cell => totalText += cell.textContent.trim());
-      counter.textContent = `입력한 글자 수: ${totalText.length}`;
+    table.appendChild(tbody);
+    grid.appendChild(table);
+
+    function clearGrid() {
+      document.querySelectorAll('td input').forEach(input => input.value = '');
     }
 
-    function saveAsImage() {
-      const wrapper = document.getElementById('wrapper');
+    function toggleTitle() {
+      const title = document.getElementById('title');
+      title.style.display = title.style.display === 'none' ? 'block' : 'none';
+    }
 
-      html2canvas(wrapper, {
-        backgroundColor: "#ffffff",
-        scale: 2
-      }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const imageWindow = window.open('');
-        imageWindow.document.write(`<img src="${imgData}" style="width:100%"/>`);
+    function saveImage() {
+      const showCount = document.getElementById('showCount').checked;
+      const title = document.getElementById('title');
+      const titleDisplay = title.style.display;
+      title.style.display = 'none';
+
+      const options = document.querySelector('.options');
+      const saveBtn = document.querySelector('.btn-save');
+      options.style.display = 'none';
+
+      if (showCount) {
+        const count = Array.from(document.querySelectorAll('td input'))
+          .filter(input => input.value.trim() !== '').length;
+        const countElem = document.createElement('div');
+        countElem.id = 'countElem';
+        countElem.textContent = `글자 수: ${count}`;
+        countElem.style.margin = '10px';
+        countElem.style.fontWeight = 'bold';
+        document.querySelector('.container').appendChild(countElem);
+      }
+
+      html2canvas(document.querySelector('.container')).then(canvas => {
+        const image = canvas.toDataURL('image/png');
+        const newTab = window.open();
+        newTab.document.write(`<img src="${image}" style="width:100%">`);
+
+        // reset UI
+        options.style.display = 'flex';
+        if (showCount) document.getElementById('countElem').remove();
+        title.style.display = titleDisplay;
       });
     }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
 </html>
