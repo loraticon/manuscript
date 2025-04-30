@@ -2,25 +2,22 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>원고지 입력 위젯</title>
   <style>
     body {
       font-family: sans-serif;
       background-color: #f9f9f9;
       margin: 0;
-      padding: 0;
+      padding: 20px;
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      flex-direction: column;
     }
     .container {
       border: 2px solid red;
       padding: 10px;
       background: white;
-      max-width: 95vw;
+      max-width: 100%;
       overflow-x: auto;
     }
     .header {
@@ -82,7 +79,7 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="capture-area">
     <div class="header">
       <div class="header-title" id="title">원고지 입력 위젯</div>
       <div class="header-buttons">
@@ -90,58 +87,46 @@
         <button onclick="toggleTitle()">👁️</button>
       </div>
     </div>
-    <div class="options">
+    <div class="options" id="options">
       <label><input type="checkbox" id="showCount"> 글자 수 표시</label>
       <button class="btn-save" onclick="saveImage()">이미지로 저장하기</button>
     </div>
     <div id="grid"></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script>
     const rows = 10;
     const cols = 20;
-    const headers = ['가', '나', '다', '라', '마', '바', '사'];
-
     const grid = document.getElementById('grid');
 
-    const table = document.createElement('table');
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
+    function createGrid() {
+      const table = document.createElement('table');
+      const tbody = document.createElement('tbody');
 
-    headers.forEach(h => {
-      const th = document.createElement('th');
-      th.textContent = h;
-      headerRow.appendChild(th);
-    });
-    for (let i = headers.length; i < cols; i++) {
-      headerRow.appendChild(document.createElement('th'));
-    }
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-
-    for (let i = 0; i < rows; i++) {
-      const tr = document.createElement('tr');
-      for (let j = 0; j < cols; j++) {
-        const td = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.maxLength = 1;
-        input.addEventListener('input', e => {
-          if (input.value.length === 1) {
-            const next = input.parentElement.nextElementSibling?.querySelector('input');
-            if (next) next.focus();
-          }
-        });
-        td.appendChild(input);
-        tr.appendChild(td);
+      for (let i = 0; i < rows; i++) {
+        const tr = document.createElement('tr');
+        for (let j = 0; j < cols; j++) {
+          const td = document.createElement('td');
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.maxLength = 1;
+          input.addEventListener('input', e => {
+            if (input.value.length === 1) {
+              const next = input.parentElement.nextElementSibling?.querySelector('input');
+              if (next) next.focus();
+            }
+          });
+          td.appendChild(input);
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
       }
-      tbody.appendChild(tr);
-    }
 
-    table.appendChild(tbody);
-    grid.appendChild(table);
+      table.appendChild(tbody);
+      grid.innerHTML = '';
+      grid.appendChild(table);
+    }
 
     function clearGrid() {
       document.querySelectorAll('td input').forEach(input => input.value = '');
@@ -155,36 +140,41 @@
     function saveImage() {
       const showCount = document.getElementById('showCount').checked;
       const title = document.getElementById('title');
-      const titleDisplay = title.style.display;
-      title.style.display = 'none';
+      const options = document.getElementById('options');
 
-      const options = document.querySelector('.options');
-      const saveBtn = document.querySelector('.btn-save');
+      // Hide elements before capture
+      const originalTitleDisplay = title.style.display;
+      const originalOptionsDisplay = options.style.display;
+      title.style.display = 'none';
       options.style.display = 'none';
 
+      // Add character count if needed
+      let countElem = null;
       if (showCount) {
         const count = Array.from(document.querySelectorAll('td input'))
           .filter(input => input.value.trim() !== '').length;
-        const countElem = document.createElement('div');
+        countElem = document.createElement('div');
         countElem.id = 'countElem';
         countElem.textContent = `글자 수: ${count}`;
         countElem.style.margin = '10px';
         countElem.style.fontWeight = 'bold';
-        document.querySelector('.container').appendChild(countElem);
+        document.getElementById('capture-area').appendChild(countElem);
       }
 
-      html2canvas(document.querySelector('.container')).then(canvas => {
+      html2canvas(document.getElementById('capture-area')).then(canvas => {
         const image = canvas.toDataURL('image/png');
         const newTab = window.open();
         newTab.document.write(`<img src="${image}" style="width:100%">`);
 
-        // reset UI
-        options.style.display = 'flex';
-        if (showCount) document.getElementById('countElem').remove();
-        title.style.display = titleDisplay;
+        // Restore UI
+        title.style.display = originalTitleDisplay;
+        options.style.display = originalOptionsDisplay;
+        if (countElem) countElem.remove();
       });
     }
+
+    // Initialize grid on page load
+    createGrid();
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
 </html>
